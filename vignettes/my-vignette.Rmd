@@ -1,0 +1,88 @@
+---
+title: "my-vignette"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{my-vignette}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r}
+library(PCPI)
+library(magrittr)
+library(ggplot2)
+
+data("reptile_df")
+```
+
+```{r}
+var_out <- reptile_df[5:7]
+var_out$range_area <- 1/(var_out$range_area)
+```
+
+```{r}
+reptile_pcpi <-
+  pcpi(sp = reptile_df$sp,
+       var_out = var_out)
+
+boxplot(reptile_pcpi$rank~reptile_df$iucn_cat, 
+        outline = FALSE)
+```
+
+```{r}
+var_in <- reptile_df[3:4]
+
+reptile_pcpi <-
+  pcpi(sp = reptile_df$sp,
+       var_out = var_out,
+       var_in = var_in)
+
+boxplot(reptile_pcpi$rank~reptile_df$iucn_cat, 
+        outline = FALSE)
+```
+
+```{r}
+levels(reptile_df$iucn_cat)
+
+# Remove "DD" and "NE" species
+reptile_df_iucn <-
+  reptile_df[!reptile_df$iucn_cat %in% c("DD", "NE"),]
+
+# Convert IUCN categories to numeric
+reptile_df_iucn$iucn_cat <- as.numeric(reptile_df_iucn$iucn_cat)
+```
+
+```{r}
+optim_weights_both <-
+  optim_weights(sp = reptile_df_iucn$sp,
+                var_out = reptile_df_iucn[5:7],
+                var_in = reptile_df_iucn[3:4],
+                compare = reptile_df_iucn$iucn_cat)
+
+weight_out_opt <- optim_weights_both$weight_out
+weight_in_opt <- optim_weights_both$weight_in
+```
+
+```{r}
+weight_df <- 
+  data.frame(out_var = rep(colnames(var_out), 2),
+             in_var = rep(colnames(var_in), each = 3),
+             weight = c(weight_in_opt))
+
+ggplot(weight_df, 
+       aes(out_var, in_var, fill = weight)) +
+  geom_tile() +
+  theme_classic()
+```
+
+```{r}
+reptile_pcpi_opt <-
+  pcpi(sp = reptile_df$sp,
+       var_out = var_out,
+       var_in = var_in,
+       weight_out = weight_out_opt,
+       weight_in = weight_in_opt)
+
+boxplot(reptile_pcpi_opt$rank~reptile_df$iucn_cat, 
+        outline = FALSE)
+```
