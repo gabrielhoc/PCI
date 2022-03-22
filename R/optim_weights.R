@@ -7,10 +7,11 @@
 #' @param var_in numeric. Interacting variables. Will modulate the effect of threat variables.
 #' @param weight_out numeric. Weights for threat variables
 #' @param weight_in numeric. Matrix of weights for the combination of interacting variables and threat variables.
-#' @param compare numeric. Threat rank towards which weights will be optimized.
+#' @param reference numeric. Threat rank towards which weights will be optimized.
 #' @param type character. Optimize weights for threat variables ("out"), for interacting variables ("in") or for both ("both").
+#' @param ... additional arguments to be passed to function 'optim'.
 #'
-#' @details The Pearson correlation between the calculated rank and 'compare' is displayed as the weights are optimized.
+#' @details The Pearson correlation between the calculated rank and 'reference' is displayed as the weights are optimized.
 #'
 #' @return Vector ("out"), matrix ("in") or list ("both") with optimal weights.
 #'
@@ -19,19 +20,36 @@
 #' # Load data
 #' data(reptile_df)
 #'
-#' # Remove "DD" and "NE" species
+#' # Calculate inverse range area
+#' reptile_df$inv_range_area <- 1/(reptile_df$range_area)
+#'
+#' # Remove 'DD' and 'NE' species
 #' reptile_df_iucn <-
-#'   reptile_df[!reptile_df$iucn_cat %in% c("DD", "NE")]
+#'    reptile_df[!reptile_df$iucn_cat %in% c("DD", "NE"),]
+#'
+#' # Change order of levels
+#' reptile_df_iucn$iucn_cat <-
+#'   factor(reptile_df_iucn$iucn_cat,
+#'          levels = c("LC", "NT", "VU", "EN", "CR"))
 #'
 #' # Convert IUCN categories to numeric
 #' reptile_df_iucn$iucn_cat <- as.numeric(reptile_df_iucn$iucn_cat)
 #'
+#' var_out_iucn <- reptile_df_iucn[,6:8]
+#' var_in_iucn <- reptile_df_iucn[,3:4]
+#'
 #' # Optimize weights
-#' optim_weights <-
+#' optim_weights_both <-
 #'   optim_weights(sp = reptile_df_iucn$sp,
-#'                 var_out = reptile_df_iucn[5:7],
-#'                 var_in = reptile_df_iucn[3:4],
-#'                 compare = reptile_df_iucn$iucn_cat)
+#'                 var_out = var_out_iucn,
+#'                 var_in = var_in_iucn,
+#'                 reference = reptile_df_iucn$iucn_cat,
+#'                 type = "both",
+#'                 control = list(maxit = 5))
+#'
+#' @importFrom stats optim
+#' @importFrom stats cor
+#' @importFrom utils flush.console
 #'
 #' @export
 
@@ -41,7 +59,7 @@ optim_weights <-
            var_in  = NULL,
            weight_out = NULL,
            weight_in = NULL,
-           compare,
+           reference,
            type = "both",
            ...) {
     optim_args <- list(...)
@@ -60,6 +78,9 @@ optim_weights <-
     if (is.null(weight_in)) weight_in <- matrix(1, ncol(var_out), ncol(var_in))
     if (all(class(weight_in) == "numeric")) weight_in <- matrix(weight_in)
 
+    inv_reference <- 1/reference
+    f <- 1 / 10^100
+
     switch(type,
            `out` = {
              xx <-
@@ -67,6 +88,8 @@ optim_weights <-
                        args = append(
                          optim_args,
                          list(
+                           method = "L-BFGS-B",
+                           lower = f,
                            par = weight_out,
                            fn = function(x) {
                              ranks <-
@@ -80,11 +103,11 @@ optim_weights <-
 
                              out <-
                                1 - cor(
-                                 compare,
+                                 inv_reference,
                                  ranks$rank
                                )
 
-                             cat(paste("correlation = ", 1 - out))
+                             message(paste("correlation = ", 1 - out),"\r",appendLF=FALSE)
                              flush.console()
 
                              out
@@ -101,27 +124,26 @@ optim_weights <-
                        args = append(
                          optim_args,
                          list(
+                           method = "L-BFGS-B",
+                           lower = f,
                            par = c(weight_in),
                            fn = function(x) {
-                             weight_in_mat <-
-                               matrix(x, ncol(var_out), ncol(var_in))
-
                              ranks <-
                                pcpi(
                                  sp = sp,
                                  var_out = var_out,
                                  var_in = var_in,
-                                 weight_out = weight_out,
-                                 weight_in = weight_in_mat
+                                 weight_out = x,
+                                 weight_in = weight_in
                                )
 
                              out <-
                                1 - cor(
-                                 compare,
+                                 inv_reference,
                                  ranks$rank
                                )
 
-                             cat(paste("correlation = ", 1 - out))
+                             message(paste("correlation = ", 1 - out),"\r",appendLF=FALSE)
                              flush.console()
 
                              out
@@ -135,41 +157,42 @@ optim_weights <-
            },
            `both` = {
              xx <-
-               do.call(
-                 what = optim,
-                 args = append(
-                   optim_args,
-                   list(
-                     par = c(weight_out, weight_in),
-                     fn = function(x) {
-                       part_out <- x[1:length(weight_out)]
-                       part_in <- x[(1:length(weight_in)) + length(weight_out)]
+               do.call(what = optim,
+                       args = append(
+                         optim_args,
+                         list(
+                           method = "L-BFGS-B",
+                           lower = f,
+                           par = c(weight_out, weight_in),
+                           fn = function(x) {
+                             part_out <- x[1:length(weight_out)]
+                             part_in <- x[(1:length(weight_in)) + length(weight_out)]
 
-                       weight_in_mat <-
-                         matrix(part_in, nrow(weight_in), ncol(weight_in))
+                             weight_in_mat <-
+                               matrix(part_in, nrow(weight_in), ncol(weight_in))
 
-                       ranks <-
-                         pcpi(
-                           sp = sp,
-                           var_out = var_out,
-                           var_in = var_in,
-                           weight_out = part_out,
-                           weight_in = weight_in_mat
+                             ranks <-
+                               pcpi(
+                                 sp = sp,
+                                 var_out = var_out,
+                                 var_in = var_in,
+                                 weight_out = part_out,
+                                 weight_in = weight_in_mat
+                               )
+
+                             out <-
+                               1 - cor(
+                                 inv_reference,
+                                 ranks$rank
+                               )
+
+                             message(paste("correlation = ", 1 - out),"\r",appendLF=FALSE)
+                             flush.console()
+
+                             out
+                           }
                          )
-
-                       out <-
-                         1 - cor(
-                           compare,
-                           ranks$rank
-                         )
-
-                       message(paste("correlation = ", 1 - out), "\r", appendLF=FALSE)
-                       flush.console()
-
-                       out
-                     }
-                   )
-                 )
+                       )
                )
 
              part_out_xx <- xx$par[1:length(weight_out)]

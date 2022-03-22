@@ -1,0 +1,270 @@
+---
+title: "Proactive Conservation Prioritization Index"
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{my-vignette} 
+  %\VignetteEngine{knitr::rmarkdown} 
+  %\VignetteEncoding{UTF-8}
+---
+
+This tutorial teaches how to install and use package 'PCPI', which calculates the Proactive Conservation Prioritization Index. PCPI is an easy to calculate index to prioritize species for conservation, which is flexible enough to incorporate any threat correlate, including those refereing to future threats. 
+It also allows the modulation of threats by other variables. For example, we can 
+
+# Set up
+
+The package is currently hosted in my GitHub repository, from which you can install it with the following command:
+
+```{r}
+devtools::install_github("gabrielhoc/PCPI")
+```
+
+Now let's load 'PCPI' and two other useful packages, 'magrittr' for piping commands and 'ggplot2' for making graphs.
+
+```{r}
+library(PCPI)
+library(magrittr)
+library(ggplot2)
+```
+
+'PCPI' includes a dataset with data on threat correlates for 10851 global reptile species, obtained from the Global Assessment of Reptile Distributions (GARD, ref). You can access it with the command below:
+
+```{r}
+data("reptile_df")
+head(reptile_df)
+```
+
+You can see above that this dataset includes the reptile species names ('sp'); their current IUCN Red List threat category ('iucn_cat'); their maximum body mass, in grams ('mass'); a binary variable indicating if they are insular endemics or not ('insular'); the area of their distribution range, in km2 ('range_are'); the average human footprint across their distribution ('human_footprint'); and the average population density across their distribution ('pop_dens').
+For now, let's use the last three variables as threat correlates to calculate our index. Note that range area itself is negatively correlated with threat, so we must invert this variable, so it is positively correlated with threat like the other ones.
+
+```{r}
+# Calculate inverse range area
+reptile_df$inv_range_area <- 1/(reptile_df$range_area)
+```
+
+Let's check which columns do we want
+
+```{r}
+names(reptile_df)
+```
+
+We want columns 6, 7 and 8 (human_footprint, population density and inverse range area)
+
+```{r}
+var_out <- reptile_df[6:8]
+```
+
+# Calculating PCPI
+
+PCPI is calculated by multiplying the scaled (from 0 to 1) correlates of threat, and then scaling the result from 0 to 1 again (include formula). To do so, simply supply the species names (argument 'sp') and threat correlates (argument 'var_out') to the function 'pcpi'.
+
+```{r}
+reptile_pcpi <-
+  pcpi(sp = reptile_df$sp,
+       var_out = var_out)
+```
+
+We can now look at the top 6 threatened species according to PCPI:
+
+```{r}
+head(reptile_pcpi[order(reptile_pcpi$rank),])
+```
+
+You can see that the functions outputs a species list with their PCPI value and their comparative rank. As PCPI is a comparative index, the most important result is the ranking of species, which allow them to be prioritized for conservation in relation to each other. We can use a simple boxplot to see how similar our results are to the IUCN threat categorization:
+
+```{r, fig.width = 7}
+boxplot(reptile_pcpi$rank~reptile_df$iucn_cat, 
+        outline = FALSE)
+```
+
+It seems median PCPI rank correlates nicely with the IUCN categories, and also shows that species classified as Data Deficient ("DD") by IUCN have median PCPI similar to Endangered species ("EN"), while Not Evaluated species ("NE"), have a greater variation than other categories, with median values similar to Vulnerable ("VU") and Near Threatened ("NT").
+
+
+## Interacting variables
+
+Next, we will explore another feature of PCPI, the ability to use interacting variables to modulate the effect of threat correlates. Let's choose two variables from our dataset, insularity and body mass, to moderate the effects of human_footprint, population density and inverse range area. This way, we are assuming that insular endemics and larger species suffer more from our selected threats. First, let's subset our selected variables:
+
+```{r}
+# insularity and body mass are in columns 3 and 4
+var_in <- reptile_df[3:4]
+```
+
+Now, we simply supply those to argument 'var_in':
+
+```{r}
+reptile_pcpi_in <-
+  pcpi(sp = reptile_df$sp,
+       var_out = var_out,
+       var_in = var_in)
+
+head(reptile_pcpi_in[order(reptile_pcpi_in$rank),])
+```
+
+There were two additions to the rank, 'Casarea dussumieri' and 'Bothrops insularis', both insular species, which are now in the first positions. 
+
+```{r, fig.width = 7}
+boxplot(reptile_pcpi_in$rank~reptile_df$iucn_cat, 
+        outline = FALSE)
+```
+
+The overall distribution of PCPI ranks relative to IUCN categories did not change much, with only a minor increase in variation.
+
+## Weighting
+
+So far we have assumed that all our threat have equivalent effects on extinction risk, which might not be always realistic. 'PCPI' includes a weighting system, which allows users to inform the different impacts different threats might have. Let's assume, for example, that population density has 1.5 times the impact of human footprint on reptiles extinction risk, that inverse range area has 2 times the impact of population density. We create a corresponding vector of weights and supply those to the argument 'weight_out' in  function pcpi:
+
+```{r}
+# we must check the order of the variables in our data frame to correctly assign their weights
+names(var_out)
+
+# Creat weights
+weight_out <- c(1, 1.5, 3)
+
+# Run function
+reptile_pcpi_weights <-
+  pcpi(sp = reptile_df$sp,
+       var_out = var_out,
+       var_in = var_in,
+       weight_out = weight_out)
+
+# Check the top ranking
+head(reptile_pcpi_weights[order(reptile_pcpi_weights$rank),])
+```
+The top positions of the rank did not change much compared to the last version, but two new species were added to positions 5 and 6 ('Dendrelaphis hollinrakei' and 'Tytthoscincus sibuensis')
+
+```{r, fig.width = 7}
+boxplot(reptile_pcpi_weights$rank~reptile_df$iucn_cat, 
+        outline = FALSE)
+```
+
+Again, the overall distribution did not change much. Finally, we can also apply weights to the interactions between the interacting variables and the threat variables For that we must supply a matrix to argument 'weight_in', in which rows correspond to the threat variables in 'var_out' and the columns to the interacting variables in 'var_in'. The values at each cell represent the intensity of the interaction. First, let's create a matrix with value '1' for all cells:
+
+```{r}
+weight_in <- 
+  matrix(1:6, ncol(var_out), ncol(var_in))
+
+rownames(weight_in) <- names(var_out)
+colnames(weight_in) <- names(var_in)
+
+weight_in
+```
+Now, let's say that population density has a particularly intense effect on insular species, and human foot print has an even more intense effect on species with high body mass. We can thus assign higher weights to the cells corresponding to the interactions between these variables.
+
+```{r}
+# population density with insularity (row 2, column 2)
+weight_in[2,2] <- 2
+
+# human footprint with mass  (row 1, column 1)
+weight_in[1,1] <- 3
+
+weight_in
+```
+We can now run 'pcpi', now supplying our weight matrix along the interacting variables.
+
+```{r}
+# Run function
+reptile_pcpi_in_weights <-
+  pcpi(sp = reptile_df$sp,
+       var_out = var_out,
+       var_in = var_in,
+       weight_in = weight_in)
+
+# Check the top ranking
+head(reptile_pcpi_in_weights[order(reptile_pcpi_in_weights$rank),])
+```
+
+This ranking is similar to the one using interacting variables but no weighting, with only the species on position 6 changing.
+
+```{r, fig.width = 7}
+boxplot(reptile_pcpi_in_weights$rank~reptile_df$iucn_cat, 
+        outline = FALSE)
+```
+
+Again the overall distribution is similar to the ones before.
+
+# Optimizing weights
+
+So far we have only assigned arbitrary values to our weighting schemes, which can be hard to come up with or justify. To overcome that, 'PCPI' has a function to estimate optimal weights, using algorithm "L-BFGS-B" in function 'optim'. For that, however, we need a reference threat classification for the algorithm to optimize towards. Here we are going to use the IUCN categories as this reference. For that we have to transform them with numeric values, with the higher values indicating higher threat. Let's check how the values are ordered in the column 'iucn_cat' from the 'reptile_df' dataset:
+
+```{r}
+levels(reptile_df$iucn_cat)
+```
+The factor levels are ordered from more threatened to less threatened, so we have to invert this order before converting to numeric. Also, there are two categories that cannot be ranked (Not Evaluated and Data Deficient). Let's create a new data frame without these two categories and then invert the levels of the variable 'iucn_cat' in this new data frame, and finally convert it to numeric.
+
+
+```{r}
+# Remove 'DD' and 'NE' species
+reptile_df_iucn <-
+  reptile_df[!reptile_df$iucn_cat %in% c("DD", "NE"),]
+
+# Change order of levels
+reptile_df_iucn$iucn_cat <- 
+  factor(reptile_df_iucn$iucn_cat, 
+         levels = c("LC", "NT", "VU", "EN", "CR"))
+
+# Convert IUCN categories to numeric
+reptile_df_iucn$iucn_cat <- as.numeric(reptile_df_iucn$iucn_cat)
+```
+
+  Now we can create our input data frames from the new subseted data and run function 'optim_weights' to optimize the weights. For that, we use the same arguments as function 'pcpi', with the addition of the argument 'reference', to which we supply our reference values. Also, we can choose to optimize only the weights for the threat variables (type = "out"), only the weights for the interacting variables (type = "in"), or both (type = "both"). You can also supply other arguments to function 'optim' (see ?optim). For example, I will use the argument 'control' from 'optim' to lower the maximum number of interations used in the optimization, so this example runs faster. When using the function in real situations you will probably need more interations (default is 100).
+  The function will optimize towards increasing the Pearson correlation between the ranks from the reference and from PCPI, and output the tentative correlation scores as it runs.
+
+```{r, message=FALSE}
+var_out_iucn <- reptile_df_iucn[6:8]
+var_in_iucn <- reptile_df_iucn[3:4]
+
+optim_weights_both <-
+  optim_weights(sp = reptile_df_iucn$sp,
+                var_out = var_out_iucn,
+                var_in = var_in_iucn,
+                reference = reptile_df_iucn$iucn_cat,
+                type = "both",
+                control = list(maxit = 5))
+# correlation = 0.46971241401417
+
+weight_out_opt <- optim_weights_both$weight_out
+weight_in_opt <- optim_weights_both$weight_in
+```
+
+We can visualize the optimized weights using a barplot for the threat variable weights and a tile plot for the interacting variable weights:
+
+```{r, fig.width = 7}
+weight_out_df <- 
+  data.frame(out_var = colnames(var_out),
+             weight = weight_out_opt)
+
+weight_in_df <- 
+  data.frame(out_var = rep(colnames(var_out), 2),
+             in_var = rep(colnames(var_in), each = 3),
+             weight = c(weight_in_opt))
+
+ggplot(weight_out_df, aes(out_var, weight)) +
+  geom_bar(stat="identity") +
+  theme_classic()
+
+ggplot(weight_in_df, 
+       aes(x = in_var, y = out_var, fill = weight)) +
+  geom_tile() +
+  theme_classic()
+```
+  The optimization increased the weights for human footprint, but decreased the weights for the other variables. It decreased the weight of the interactions of all threat variables with insularity and increased the weights for mass, with a greater magnitude in the case of range area.
+  We can now use the new weights to calculate PCPI for every species (including DD and NE species we had excluded before):
+  
+```{r}
+reptile_pcpi_opt <-
+  pcpi(sp = reptile_df$sp,
+       var_out = var_out,
+       var_in = var_in,
+       weight_out = weight_out_opt,
+       weight_in = weight_in_opt)
+
+head(reptile_pcpi_opt[order(reptile_pcpi_opt$rank),])
+```
+
+  The rank changes once again, with similar composition, but a different order.
+
+```{r, fig.width = 7}
+boxplot(reptile_pcpi_opt$rank~reptile_df$iucn_cat, 
+        outline = FALSE)
+```
