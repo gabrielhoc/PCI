@@ -16,7 +16,7 @@ It also allows the modulation of threats by other variables. For example, we can
 
 The package is currently hosted in my GitHub repository, from which you can install it with the following command:
 
-```{r}
+```{r, eval = FALSE}
 devtools::install_github("gabrielhoc/PCPI")
 ```
 
