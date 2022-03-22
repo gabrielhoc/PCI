@@ -9,8 +9,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-This tutorial teaches how to install and use package 'PCPI', which calculates the Proactive Conservation Prioritization Index. PCPI is an easy to calculate index to prioritize species for conservation, which is flexible enough to incorporate any threat correlate, including those refereing to future threats. 
-It also allows the modulation of threats by other variables. For example, we can 
+This tutorial teaches how to install and use package 'PCPI', which calculates the Proactive Conservation Prioritization Index. PCPI is an easy to calculate index to prioritize species for conservation, which is flexible enough to incorporate any threat correlate, including those refereing to future threats. It also allows the modulation of threats by other variables.
 
 # Set up
 
