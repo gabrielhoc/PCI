@@ -125,7 +125,7 @@ pcpi <-
       sapply(1:ncol(weighted_vars), function(i) {
         z <- weighted_vars[,i]
         ws <- caret::preProcess(as.data.frame(z), method = c("range"))
-        xx <- (predict(ws, as.data.frame(z)) + f)^(1/weight_out_vec[i])
+        xx <- (predict(ws, as.data.frame(z)))^(1/weight_out_vec[i]) + f
       })
 
     scaled_weighted_vars <-
