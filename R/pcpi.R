@@ -72,6 +72,10 @@ pcpi <-
            weight_out = NULL,
            weight_in = NULL) {
 
+    gm_mean <- function(x, na.rm=TRUE){
+      exp(sum(log(x[x > 0]), na.rm=na.rm) / length(x))
+    }
+
     if (is.null(var_in)) {
       var_in <- matrix(rep(1, nrow(var_out)))
       colnames(var_in) <- c("var_in")
@@ -131,8 +135,10 @@ pcpi <-
     scaled_weighted_vars <-
       do.call(cbind, scaled_weighted_list)
 
+
+
     pcpi <-
-      apply(scaled_weighted_vars, 1, prod, na.rm = TRUE)
+      apply(scaled_weighted_vars, 1, gm_mean, na.rm = TRUE)
 
     pcpi <- pcpi / max(pcpi)
 
