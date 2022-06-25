@@ -9,6 +9,7 @@
 #' @param weight_in numeric. Matrix of weights for the combination of interacting variables and threat variables.
 #' @param reference numeric. Threat rank towards which weights will be optimized.
 #' @param type character. Optimize weights for threat variables ("out"), for interacting variables ("in") or for both ("both").
+#' @param parallel list. arguments for parallelizing optimization in function \code{\link[optimParallel]{optimParallel}}.
 #' @param ... additional arguments to be passed to function 'optim'.
 #'
 #' @details The Pearson correlation between the calculated rank and 'reference' is displayed as the weights are optimized.
@@ -61,6 +62,9 @@ optim_weights <-
            weight_in = NULL,
            reference,
            type = "both",
+           parallel = list(cl = NULL,
+                           forward = FALSE,
+                           loginfo = FALSE),
            ...) {
     optim_args <- list(...)
 
@@ -84,13 +88,14 @@ optim_weights <-
     switch(type,
            `out` = {
              xx <-
-               do.call(optim,
+               do.call(what = optimParallel::optimParallel,
                        args = append(
                          optim_args,
                          list(
                            method = "L-BFGS-B",
                            lower = f,
                            par = weight_out,
+                           parallel = parallel,
                            fn = function(x) {
                              ranks <-
                                pcpi(
@@ -120,13 +125,14 @@ optim_weights <-
            },
            `in` = {
              xx <-
-               do.call(optim,
+               do.call(what = optimParallel::optimParallel,
                        args = append(
                          optim_args,
                          list(
                            method = "L-BFGS-B",
                            lower = f,
                            par = c(weight_in),
+                           parallel = parallel,
                            fn = function(x) {
                              ranks <-
                                pcpi(
@@ -157,13 +163,14 @@ optim_weights <-
            },
            `both` = {
              xx <-
-               do.call(what = optim,
+               do.call(what = optimParallel::optimParallel,
                        args = append(
                          optim_args,
                          list(
                            method = "L-BFGS-B",
                            lower = f,
                            par = c(weight_out, weight_in),
+                           parallel = parallel,
                            fn = function(x) {
                              part_out <- x[1:length(weight_out)]
                              part_in <- x[(1:length(weight_in)) + length(weight_out)]
