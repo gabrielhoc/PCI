@@ -142,8 +142,9 @@ pcpi <-
 
     pcpi <- pcpi / max(pcpi)
 
-    rank <- rep(NA, length(pcpi))
-    rank[order(pcpi, decreasing = TRUE)] <- 1:length(pcpi)
+    # rank <- rep(NA, length(pcpi))
+    # rank[order(pcpi, decreasing = TRUE)] <- 1:length(pcpi)
+    ecdf <- ecdf(pcpi)(pcpi)
 
-    data.frame(sp, pcpi, rank)
+    data.frame(sp, pcpi, ecdf)
   }
