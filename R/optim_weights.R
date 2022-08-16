@@ -7,11 +7,11 @@
 #' @param var_in numeric. Interacting variables. Will modulate the effect of threat variables.
 #' @param weight_out numeric. Weights for threat variables
 #' @param weight_in numeric. Matrix of weights for the combination of interacting variables and threat variables.
-#' @param reference numeric. Threat rank towards which weights will be optimized.
+#' @param reference numeric. Threat pcpi towards which weights will be optimized.
 #' @param type character. Optimize weights for threat variables ("out"), for interacting variables ("in") or for both ("both").
 #' @param ... additional arguments to be passed to function 'optim'.
 #'
-#' @details The Pearson correlation between the calculated rank and 'reference' is displayed as the weights are optimized.
+#' @details The Pearson correlation between the calculated pcpi and 'reference' is displayed as the weights are optimized.
 #'
 #' @return Vector ("out"), matrix ("in") or list ("both") with optimal weights.
 #'
@@ -78,7 +78,7 @@ optim_weights <-
     if (is.null(weight_in)) weight_in <- matrix(1, ncol(var_out), ncol(var_in))
     if (all(class(weight_in) == "numeric")) weight_in <- matrix(weight_in)
 
-    # inv_reference <- 1/reference
+    inv_reference <- 1/reference
     f <- 1 / 10^100
 
     switch(type,
@@ -92,7 +92,7 @@ optim_weights <-
                            lower = f,
                            par = weight_out,
                            fn = function(x) {
-                             ranks <-
+                             pcpis <-
                                pcpi(
                                  sp = sp,
                                  var_out = var_out,
@@ -104,7 +104,7 @@ optim_weights <-
                              out <-
                                1 - cor(
                                  reference,
-                                 ranks$rank
+                                 pcpis$pcpi
                                )
 
                              message(paste("correlation = ", 1 - out),"\r",appendLF=FALSE)
@@ -128,7 +128,7 @@ optim_weights <-
                            lower = f,
                            par = c(weight_in),
                            fn = function(x) {
-                             ranks <-
+                             pcpis <-
                                pcpi(
                                  sp = sp,
                                  var_out = var_out,
@@ -139,9 +139,8 @@ optim_weights <-
 
                              out <-
                                1 - cor(
-                                 # inv_reference,
                                  reference,
-                                 ranks$rank
+                                 pcpis$pcpi
                                )
 
                              message(paste("correlation = ", 1 - out),"\r",appendLF=FALSE)
@@ -172,7 +171,7 @@ optim_weights <-
                              weight_in_mat <-
                                matrix(part_in, nrow(weight_in), ncol(weight_in))
 
-                             ranks <-
+                             pcpis <-
                                pcpi(
                                  sp = sp,
                                  var_out = var_out,
@@ -183,9 +182,8 @@ optim_weights <-
 
                              out <-
                                1 - cor(
-                                 # inv_reference,
                                  reference,
-                                 ranks$rank
+                                 pcpis$pcpi
                                )
 
                              message(paste("correlation = ", 1 - out),"\r",appendLF=FALSE)
