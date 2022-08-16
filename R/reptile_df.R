@@ -1,11 +1,11 @@
 #' Threat data for 10851 global reptiles.
 #'
-#' A dataset containing data on threat correlates for 10851 global reptiles
+#' A data set containing data on threat correlates for 10851 global reptiles
 #'
 #' @format A data frame with 359 rows and 3 variables:
 #' \describe{
 #'   \item{sp}{character. species name}
-#'   \item{iucn_cat}{character. IUCN Red List threat category}
+#'   \item{iucn_cat}{character. IUCN Red List threat category in July 2022}
 #'   \item{mass}{numeric. Maximum body mass, in grams}
 #'   \item{brood_size}{numeric. Average brood size}
 #'   \item{insular}{binary. If insular endemic, value 1, if not, value 0}
