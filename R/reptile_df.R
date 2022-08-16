@@ -23,20 +23,3 @@
 #'   ...
 #' }
 "reptile_df"
-
-"sp"
-"iucn_cat"
-"mass"
-"brood_size"
-"insular"
-"range_area"
-"human_footprint"
-"pop_dens"
-"clim_2050_245"
-"clim_2100_245"
-"clim_2050_585"
-"clim_2100_585"
-"luh_2050_245"
-"luh_2100_245"
-"luh_2050_585"
-"luh_2100_585"
