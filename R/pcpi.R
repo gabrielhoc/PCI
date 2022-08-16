@@ -66,85 +66,121 @@
 #' @export
 
 pcpi <-
-  function(sp,
-           var_out,
-           var_in = NULL,
-           weight_out = NULL,
-           weight_in = NULL) {
+  function (sp, var_out, var_in = NULL, weight_out = NULL, weight_in = NULL)
+  {
 
-    gm_mean <- function(x, na.rm=TRUE){
-      exp(sum(log(x[x > 0]), na.rm=na.rm) / length(x))
+    # geometric mean function
+    gm_mean <- function(x, weights, na.rm = TRUE) {
+
+      prod(x^weights)^(1/sum(weights))
+
     }
 
+    # create matrix with 1 if "var_in" is not supplied
+
     if (is.null(var_in)) {
+
       var_in <- matrix(rep(1, nrow(var_out)))
+
       colnames(var_in) <- c("var_in")
+
     }
 
     if (all(class(var_in) == "numeric")) {
+
       var_in <- matrix(var_in)
+
       colnames(var_in) <- c("var_in")
+
     }
 
-    if (is.null(weight_out)) weight_out <- rep(1, ncol(var_out))
-    if (is.null(weight_in)) weight_in <- matrix(1, ncol(var_out), ncol(var_in))
-    if (all(class(weight_in) == "numeric")) weight_in <- matrix(weight_in)
-    f <- 1 / 10^100
+    # if weights are not supplied, assign 1
+    if (is.null(weight_out)){
 
+      weight_out <- rep(1, ncol(var_out))
+    }
+
+    if (is.null(weight_in)){
+
+      weight_in <- matrix(1, ncol(var_out), ncol(var_in))
+    }
+
+    if (all(class(weight_in) == "numeric")) {
+
+      weight_in <- matrix(weight_in)
+    }
+
+    # small number to add to zeros
+    f <- 1/10^100
+
+    # scale out variables
     sv <- caret::preProcess(log(var_out + 1), method = c("range"))
+
     scaled_var_out <- predict(sv, log(var_out + 1)) + f
 
+    # scale in variables
     if (max(var_in) != min(var_in)) {
+
       siv <- caret::preProcess(log(var_in + 1), method = c("range"))
+
       scaled_var_in <- predict(siv, log(var_in + 1)) + f
+
     } else {
+
       scaled_var_in <- var_in
     }
 
+    # calculate in weights
     weight_in_list <-
       lapply(1:nrow(weight_in), function(i) {
+
         t(weight_in[i, ] * t(scaled_var_in))
+
       })
 
-    weight_out_vec <- weight_out / sum(weight_out)
+    # apply in weights
+    wv_list <- lapply(1:ncol(scaled_var_out), function(i) {
 
-    wv_list <-
-      lapply(1:ncol(scaled_var_out), function(i) {
-        weight_mat <- weight_in_list[[i]]
+      weight_mat <- weight_in_list[[i]]
 
-        wm_list <-
-          lapply(1:ncol(weight_mat), function(j) {
-            scaled_var_out[, i] * weight_mat[, j]
-          })
+      wm_list <- lapply(1:ncol(weight_mat), function(j) {
 
-        wm_mat <-
-          do.call(cbind, wm_list)
+        scaled_var_out[, i] * weight_mat[, j]
 
-        rowSums(wm_mat)
       })
 
-      weighted_vars <- do.call(cbind, wv_list)
+      wm_mat <- do.call(cbind, wm_list)
 
-    scaled_weighted_list <-
-      sapply(1:ncol(weighted_vars), function(i) {
-        z <- weighted_vars[,i]
-        ws <- caret::preProcess(as.data.frame(z), method = c("range"))
-        xx <- (predict(ws, as.data.frame(z)))^(1/weight_out_vec[i]) + f
-      })
+      lapply(1:nrow(wm_mat), function(k) {
 
-    scaled_weighted_vars <-
-      do.call(cbind, scaled_weighted_list)
+        sum(wm_mat[k,])
 
+      }) %>%
+        do.call(rbind, .)
 
+    })
 
-    pcpi <-
-      apply(scaled_weighted_vars, 1, gm_mean, na.rm = TRUE)
+    weighted_vars <- do.call(cbind, wv_list)
 
-    pcpi <- pcpi / max(pcpi)
+    # scale weighted variables
+    scaled_weighted_list <- sapply(1:ncol(weighted_vars), function(i) {
 
-    # rank <- rep(NA, length(pcpi))
-    # rank[order(pcpi, decreasing = TRUE)] <- 1:length(pcpi)
-    ecdf <- ecdf(pcpi)(pcpi)
+      z <- weighted_vars[, i]
 
-    data.frame(sp, pcpi, ecdf)
+      ws <- caret::preProcess(as.data.frame(z), method = c("range"))
+
+      xx <- predict(ws, as.data.frame(z)) + f
+
+    })
+
+    scaled_weighted_vars <- do.call(cbind, scaled_weighted_list)
+
+    # weight and average variables
+    pcpi <- apply(scaled_weighted_vars, 1, gm_mean, weight_out, na.rm = TRUE)
+
+    pcpi <- pcpi/max(pcpi)
+
+    rank <- rank(pcpi)
+
+    out <- data.frame(sp, pcpi, rank)
   }
