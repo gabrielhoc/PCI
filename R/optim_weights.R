@@ -116,9 +116,20 @@ optim_weights <-
                        )
                )
 
-             xx$par
+             part_out_xx <- xx$par
+
+             names(part_out_xx) <- names(var_out)
+
+             part_out_xx
+
+             list(
+               weight_out = part_out_xx,
+               weight_in = weight_in
+             )
+
            },
            `in` = {
+
              xx <-
                do.call(what = optim,
                        args = append(
@@ -128,13 +139,17 @@ optim_weights <-
                            lower = f,
                            par = c(weight_in),
                            fn = function(x) {
+
+                             weight_in_mat <-
+                               matrix(x, nrow(weight_in), ncol(weight_in))
+
                              pcpis <-
                                pcpi(
                                  sp = sp,
                                  var_out = var_out,
                                  var_in = var_in,
-                                 weight_out = x,
-                                 weight_in = weight_in
+                                 weight_out = weight_out,
+                                 weight_in = weight_in_mat
                                )
 
                              out <-
@@ -154,6 +169,14 @@ optim_weights <-
 
              weight_in_mat_xx <-
                matrix(xx$par, nrow(weight_in), ncol(weight_in))
+
+             colnames(weight_in_mat_xx) <- names(var_in)
+             rownames(weight_in_mat_xx) <- names(var_out)
+
+             list(
+               weight_out = weight_out,
+               weight_in = weight_in_mat_xx
+             )
            },
            `both` = {
              xx <-
@@ -198,8 +221,13 @@ optim_weights <-
              part_out_xx <- xx$par[1:length(weight_out)]
              part_in_xx <- xx$par[(1:length(weight_in)) + length(weight_out)]
 
+             names(part_out_xx) <- names(var_out)
+
              weight_in_mat_xx <-
                matrix(part_in_xx, nrow(weight_in), ncol(weight_in))
+
+             colnames(weight_in_mat_xx) <- names(var_in)
+             rownames(weight_in_mat_xx) <- names(var_out)
 
              list(
                weight_out = part_out_xx,

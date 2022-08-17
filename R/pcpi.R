@@ -113,6 +113,9 @@ pcpi <-
     # small number to add to zeros
     f <- 1/10^100
 
+    weight_out <- weight_out + f
+    weight_in <- weight_in + f
+
     # scale out variables
     sv <- caret::preProcess(log(var_out + 1), method = c("range"))
 
