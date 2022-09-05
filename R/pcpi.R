@@ -183,7 +183,7 @@ pcpi <-
 
     pcpi <- pcpi/max(pcpi)
 
-    rank <- rank(pcpi)
+    rank <- rank(-pcpi)
 
     out <- data.frame(sp, pcpi, rank)
   }
