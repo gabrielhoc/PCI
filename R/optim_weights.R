@@ -78,7 +78,6 @@ optim_weights <-
     if (is.null(weight_in)) weight_in <- matrix(1, ncol(var_out), ncol(var_in))
     if (all(class(weight_in) == "numeric")) weight_in <- matrix(weight_in)
 
-    inv_reference <- 1/reference
     f <- 1 / 10^100
 
     switch(type,

@@ -65,9 +65,7 @@
 #'
 #' @export
 
-pcpi <-
-  function (sp, var_out, var_in = NULL, weight_out = NULL, weight_in = NULL)
-  {
+pcpi <- function (sp, var_out, var_in = NULL, weight_out = NULL, weight_in = NULL) {
 
     # geometric mean function
     gm_mean <- function(x, weights, na.rm = TRUE) {
