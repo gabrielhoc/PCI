@@ -68,9 +68,9 @@
 pcpi <- function (sp, var_out, var_in = NULL, weight_out = NULL, weight_in = NULL) {
 
     # geometric mean function
-    gm_mean <- function(x, weights, na.rm = TRUE) {
+    am_mean <- function(x, weights, na.rm = TRUE) {
 
-      prod(x^weights)^(1/sum(weights))
+      sum(x*weights)/sum(weights)
 
     }
 
@@ -177,7 +177,7 @@ pcpi <- function (sp, var_out, var_in = NULL, weight_out = NULL, weight_in = NUL
     scaled_weighted_vars <- do.call(cbind, scaled_weighted_list)
 
     # weight and average variables
-    pcpi <- apply(scaled_weighted_vars, 1, gm_mean, weight_out, na.rm = TRUE)
+    pcpi <- apply(scaled_weighted_vars, 1, am_mean, weight_out, na.rm = TRUE)
 
     pcpi <- pcpi/max(pcpi)
 
