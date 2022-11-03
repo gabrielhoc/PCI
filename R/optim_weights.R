@@ -17,36 +17,6 @@
 #'
 #' @examples
 #'
-#' # Load data
-#' data(reptile_df)
-#'
-#' # Calculate inverse range area
-#' reptile_df$inv_range_area <- 1/(reptile_df$range_area)
-#'
-#' # Remove 'DD' and 'NE' species
-#' reptile_df_iucn <-
-#'    reptile_df[!reptile_df$iucn_cat %in% c("DD", "NE"),]
-#'
-#' # Change order of levels
-#' reptile_df_iucn$iucn_cat <-
-#'   factor(reptile_df_iucn$iucn_cat,
-#'          levels = c("LC", "NT", "VU", "EN", "CR"))
-#'
-#' # Convert IUCN categories to numeric
-#' reptile_df_iucn$iucn_cat <- as.numeric(reptile_df_iucn$iucn_cat)
-#'
-#' var_out_iucn <- reptile_df_iucn[,6:8]
-#' var_in_iucn <- reptile_df_iucn[,3:4]
-#'
-#' # Optimize weights
-#' optim_weights_both <-
-#'   optim_weights(sp = reptile_df_iucn$sp,
-#'                 var_out = var_out_iucn,
-#'                 var_in = var_in_iucn,
-#'                 reference = reptile_df_iucn$iucn_cat,
-#'                 type = "both",
-#'                 control = list(maxit = 5))
-#'
 #' @importFrom stats optim
 #' @importFrom stats cor
 #' @importFrom utils flush.console
