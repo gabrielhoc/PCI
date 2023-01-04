@@ -114,11 +114,12 @@ pcpi <- function (sp, var_out, var_in = NULL, weight_out = NULL, weight_in = NUL
     # scaled_weighted_vars <- do.call(cbind, scaled_weighted_list)
 
     # weight and average variables
-    pcpi <- apply(weighted_vars, 1, am_mean, weight_out, na.rm = TRUE)
 
     ps <- caret::preProcess(data.frame(pcpi), method = c("range"), rangeBounds = c(f, 1))
 
     pcpi <- predict(ps, data.frame(pcpi))
+
+    pcpi <- apply(weighted_vars, 1, am_mean, weight_out, na.rm = TRUE)
 
     rank <- rank(-pcpi)
 
