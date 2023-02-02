@@ -1,6 +1,6 @@
 #' Calculates Proactive Conservation Prioritization Index
 #'
-#' \code{pcpi} Calculates the Proactive Conservation Prioritization Index (ref), a new tool to prioritize species for conservation, which can incorporates information about future threats.
+#' \code{pcpi} Calculates the Proactive Conservation Prioritization Index, a new tool to prioritize species for conservation, which incorporates information about future threats.
 #'
 #' @param sp character. Names of the taxa being evaluated.
 #' @param var_out numeric. Threat variables. higher values must indicate increased threat.
@@ -16,7 +16,11 @@
 #'
 #' @export
 
-pcpi <- function (sp, var_out, var_in = NULL, weight_out = NULL, weight_in = NULL) {
+pcpi <- function (sp,
+                  var_out,
+                  var_in = NULL,
+                  weight_out = NULL,
+                  weight_in = NULL) {
 
     # geometric mean function
     am_mean <- function(x, weights, na.rm = TRUE) {
