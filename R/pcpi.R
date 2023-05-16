@@ -66,12 +66,6 @@ pcpi <- function (sp,
     # small number to add to zeros
     f <- 0
 
-    # sv_out<- caret::preProcess(weight_out, method = c("range"), rangeBounds = c(f, 1))
-    # sv_in <- caret::preProcess(weight_in, method = c("range"), rangeBounds = c(f, 1))
-    #
-    # weight_out <- predict(sv_out, weight_out)
-    # weight_in <- predict(sv_in, weight_in)
-
     # calculate in weights
     weight_in_list <-
       lapply(1:nrow(weight_in), function(i) {
@@ -103,19 +97,6 @@ pcpi <- function (sp,
     })
 
     weighted_vars <- do.call(cbind, wv_list)
-
-    # scale weighted variables
-    # scaled_weighted_list <- sapply(1:ncol(weighted_vars), function(i) {
-    #
-    #   z <- weighted_vars[, i]
-    #
-    #   ws <- caret::preProcess(as.data.frame(z), method = c("range"), rangeBounds = c(f, 1))
-    #
-    #   xx <- predict(ws, as.data.frame(z))
-    #
-    # })
-    #
-    # scaled_weighted_vars <- do.call(cbind, scaled_weighted_list)
 
     # weight and average variables
 

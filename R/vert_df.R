@@ -21,10 +21,10 @@
 #'   \item{landuse_2100_245}{numeric. Uninhabitable area due to land use change in 2100, under ssp 245}
 #'   \item{landuse_2050_585}{numeric. Uninhabitable area due to land use change in 2050, under ssp 585}
 #'   \item{landuse_2100_585}{numeric. Uninhabitable area due to land use change in 2100, under ssp 585}
-#'   \item{popdens_2050_245}{numeric. Mean population density in 2050, under ssp 245}
-#'   \item{popdens_2100_245}{numeric. Mean population density in 2100, under ssp 245}
-#'   \item{popdens_2050_585}{numeric. Mean population density in 2050, under ssp 585}
-#'   \item{popdens_2100_585}{numeric. Mean population density in 2100, under ssp 585}
+#'   \item{popdens_2050_245}{numeric. Mean human population density in 2050, under ssp 245}
+#'   \item{popdens_2100_245}{numeric. Mean human population density in 2100, under ssp 245}
+#'   \item{popdens_2050_585}{numeric. Mean human population density in 2050, under ssp 585}
+#'   \item{popdens_2100_585}{numeric. Mean human population density in 2100, under ssp 585}
 #'
 #' }
 "vert_df"
