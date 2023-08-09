@@ -1,10 +1,10 @@
-Package: PCPI
+Package: PCI
 Type: Package
-Title: Proactive Conservation Prioritization Index
+Title: Proactive Conservation Index
 Version: 0.1.0
 Author: Gabriel Henrique de Oliveira Caetano
 Maintainer: Gabriel Henrique de Oliveira Caetano <gabrielhoc@gmail.com>
-Description: Calculates the Proactive Conservation Prioritization Index (ref), a new tool to prioritize species for conservation, which can incorporates information about future threats.
+Description: Calculates the Proactive Conservation Index, a new tool to prioritize species for conservation, which can incorporates information about future threats.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true

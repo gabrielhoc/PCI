@@ -1,17 +1,17 @@
-#' Optimizes weighting for the calculation of Proactive Conservation Prioritization Index
+#' Optimizes weighting for the calculation of Proactive Conservation Index
 #'
-#' \code{optim_weights} Optimizes weights for calculating Proactive Conservation Prioritization Index (ref),
+#' \code{optim_weights} Optimizes weights for calculating Proactive Conservation Index,
 #'
 #' @param sp character. Names of the taxa being evaluated.
 #' @param var_out numeric. Threat variables. higher values must indicate increased threat.
 #' @param var_in numeric. Interacting variables. Will modulate the effect of threat variables.
 #' @param weight_out numeric. Weights for threat variables
 #' @param weight_in numeric. Matrix of weights for the combination of interacting variables and threat variables.
-#' @param reference numeric. Threat pcpi towards which weights will be optimized.
+#' @param reference numeric. Threat reference towards which weights will be optimized.
 #' @param type character. Optimize weights for threat variables ("out"), for interacting variables ("in") or for both ("both").
 #' @param ... additional arguments to be passed to function 'optim'.
 #'
-#' @details The Pearson correlation between the calculated pcpi and 'reference' is displayed as the weights are optimized.
+#' @details The Pearson correlation between the calculated pci and 'reference' is displayed as the weights are optimized.
 #'
 #' @return Vector ("out"), matrix ("in") or list ("both") with optimal weights.
 #'
@@ -61,8 +61,8 @@ optim_weights <-
                            lower = f,
                            par = weight_out,
                            fn = function(x) {
-                             pcpis <-
-                               pcpi(
+                             pcis <-
+                               pci(
                                  sp = sp,
                                  var_out = var_out,
                                  var_in = var_in,
@@ -73,7 +73,7 @@ optim_weights <-
                              out <-
                                1 - cor(
                                  reference,
-                                 pcpis$pcpi
+                                 pcis$pci
                                )
 
                              message(paste("correlation = ", 1 - out),"\r",appendLF=FALSE)
@@ -112,8 +112,8 @@ optim_weights <-
                              weight_in_mat <-
                                matrix(x, nrow(weight_in), ncol(weight_in))
 
-                             pcpis <-
-                               pcpi(
+                             pcis <-
+                               pci(
                                  sp = sp,
                                  var_out = var_out,
                                  var_in = var_in,
@@ -124,7 +124,7 @@ optim_weights <-
                              out <-
                                1 - cor(
                                  reference,
-                                 pcpis$pcpi
+                                 pcis$pci
                                )
 
                              message(paste("correlation = ", 1 - out),"\r",appendLF=FALSE)
@@ -163,8 +163,8 @@ optim_weights <-
                              weight_in_mat <-
                                matrix(part_in, nrow(weight_in), ncol(weight_in))
 
-                             pcpis <-
-                               pcpi(
+                             pcis <-
+                               pci(
                                  sp = sp,
                                  var_out = var_out,
                                  var_in = var_in,
@@ -175,7 +175,7 @@ optim_weights <-
                              out <-
                                1 - cor(
                                  reference,
-                                 pcpis$pcpi
+                                 pcis$pci
                                )
 
                              message(paste("correlation = ", 1 - out),"\r",appendLF=FALSE)

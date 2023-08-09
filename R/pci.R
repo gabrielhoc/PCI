@@ -1,6 +1,6 @@
-#' Calculates Proactive Conservation Prioritization Index
+#' Calculates Proactive Conservation Index
 #'
-#' \code{pcpi} Calculates the Proactive Conservation Prioritization Index, a new tool to prioritize species for conservation, which incorporates information about future threats.
+#' \code{pci} Calculates the Proactive Conservation Index, a new tool to prioritize species for conservation, which incorporates information about future threats.
 #'
 #' @param sp character. Names of the taxa being evaluated.
 #' @param var_out numeric. Threat variables. higher values must indicate increased threat.
@@ -8,7 +8,7 @@
 #' @param weight_out numeric. Weights for threat variables
 #' @param weight_in numeric. Matrix of weights for the combination of interacting variables and threat variables.
 #'
-#' @return Data frame with PCPI and rank.
+#' @return Data frame with PCI and rank.
 #'
 #' @examples
 #'
@@ -16,7 +16,7 @@
 #'
 #' @export
 
-pcpi <- function (sp,
+pci <- function (sp,
                   var_out,
                   var_in = NULL,
                   weight_out = NULL,
@@ -109,9 +109,9 @@ pcpi <- function (sp,
 
     })
 
-    pcpi <- apply(scaled_vars, 1, am_mean, weight_out, na.rm = TRUE)
+    pci <- apply(scaled_vars, 1, am_mean, weight_out, na.rm = TRUE)
 
-    rank <- rank(-pcpi)
+    rank <- rank(-pci)
 
-    out <- data.frame(sp, pcpi, rank)
+    out <- data.frame(sp, pci, rank)
   }
