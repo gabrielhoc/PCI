@@ -2,7 +2,7 @@
 % Please edit documentation in R/optim_weights.R
 \name{optim_weights}
 \alias{optim_weights}
-\title{Optimizes weighting for the calculation of Proactive Conservation Prioritization Index}
+\title{Optimizes weighting for the calculation of Proactive Conservation Index}
 \usage{
 optim_weights(
   sp,
@@ -26,7 +26,7 @@ optim_weights(
 
 \item{weight_in}{numeric. Matrix of weights for the combination of interacting variables and threat variables.}
 
-\item{reference}{numeric. Threat pcpi towards which weights will be optimized.}
+\item{reference}{numeric. Threat reference towards which weights will be optimized.}
 
 \item{type}{character. Optimize weights for threat variables ("out"), for interacting variables ("in") or for both ("both").}
 
@@ -36,8 +36,8 @@ optim_weights(
 Vector ("out"), matrix ("in") or list ("both") with optimal weights.
 }
 \description{
-\code{optim_weights} Optimizes weights for calculating Proactive Conservation Prioritization Index (ref),
+\code{optim_weights} Optimizes weights for calculating Proactive Conservation Index,
 }
 \details{
-The Pearson correlation between the calculated pcpi and 'reference' is displayed as the weights are optimized.
+The Pearson correlation between the calculated pci and 'reference' is displayed as the weights are optimized.
 }
