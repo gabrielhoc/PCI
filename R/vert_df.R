@@ -10,21 +10,26 @@
 #'   \item{range_area}{numeric. Area of distribution range, in km2}
 #'   \item{body_mass}{numeric. Maximum body mass, in grams}
 #'   \item{brood_size}{numeric. Maximum number of offspring per brood}
-#'   \item{protected_area}{numeric. Proportion of protected area}
+#'   \item{protected_area}{numeric. Proportion of species range overlapping wth protected area under categoty I to IV}
 #'   \item{AHI}{numeric. Artificial Habitat Intolerance}
 #'   \item{iucn_cat}{character. IUCN Red List threat category in July 2022}
-#'   \item{clim_2050_245}{numeric. Uninhabitable area due to climate change in 2050, under ssp 245}
-#'   \item{clim_2100_245}{numeric. Uninhabitable area due to climate change in 2100, under ssp 245}
-#'   \item{clim_2050_585}{numeric. Uninhabitable area due to climate change in 2050, under ssp 585}
-#'   \item{clim_2100_585}{numeric. Uninhabitable area due to climate change in 2100, under ssp 585}
-#'   \item{landuse_2050_245}{numeric. Uninhabitable area due to land use change in 2050, under ssp 245}
-#'   \item{landuse_2100_245}{numeric. Uninhabitable area due to land use change in 2100, under ssp 245}
-#'   \item{landuse_2050_585}{numeric. Uninhabitable area due to land use change in 2050, under ssp 585}
-#'   \item{landuse_2100_585}{numeric. Uninhabitable area due to land use change in 2100, under ssp 585}
-#'   \item{popdens_2050_245}{numeric. Mean human population density in 2050, under ssp 245}
-#'   \item{popdens_2100_245}{numeric. Mean human population density in 2100, under ssp 245}
-#'   \item{popdens_2050_585}{numeric. Mean human population density in 2050, under ssp 585}
-#'   \item{popdens_2100_585}{numeric. Mean human population density in 2100, under ssp 585}
+#'   \item{clim_2050_245}{numeric. Proportion of species range lost due to climate change in 2050, under ssp 2.45 scenario}
+#'   \item{clim_2100_245}{numeric. Proportion of species range lost due to climate change in 2100, under ssp 2.45 scenario}
+#'   \item{clim_2050_585}{numeric. Proportion of species range lost due to climate change in 2050, under ssp 5.85 scenario}
+#'   \item{clim_2100_585}{numeric. Proportion of species range lost due to climate change in 2100, under ssp 5.85 scenario}
+#'   \item{landuse_2050_245}{numeric. Proportion of species range lost due to land use change in 2050, under ssp 2.45 scenario}
+#'   \item{landuse_2100_245}{numeric. Proportion of species range lost due to land use change in 2100, under ssp 2.45 scenario}
+#'   \item{landuse_2050_585}{numeric. Proportion of species range lost due to land use change in 2050, under ssp 5.85 scenario}
+#'   \item{landuse_2100_585}{numeric. Proportion of species range lost due to land use change in 2100, under ssp 5.85 scenario}
+#'   \item{popdens_2050_245}{numeric. Mean human population density in 2050, under ssp 2.45 scenario}
+#'   \item{popdens_2100_245}{numeric. Mean human population density in 2100, under ssp 2.45 scenario}
+#'   \item{popdens_2050_585}{numeric. Mean human population density in 2050, under ssp 5.85 scenario}
+#'   \item{popdens_2100_585}{numeric. Mean human population density in 2100, under ssp 5.85 scenario}
+#'   \item{inv_threat}{numeric. Proportion of species range under high or very high threat of biological invasion in 2100 under A3 scenario}
+#'   \item{landuse_pres_2025_245}{numeric. Proportion of species range lost due to land use change in 2025, under ssp 2.45 scenario}
+#'   \item{landuse_pres_2025_585}{numeric. Proportion of species range lost due to land use change in 2025, under ssp 5.85 scenario}
+#'   \item{protected_area}{numeric. Proportion of species range overlapping wth protected area under categoty I to VI}
+#'   \item{popdens_2050_245}{numeric. Mean human population density in 2020}
 #'
 #' }
 "vert_df"
